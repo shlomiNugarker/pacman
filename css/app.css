@@ -1,0 +1,49 @@
+body {
+  background-color: rgb(39, 44, 40);
+  color:white;
+  text-align: center;
+  font-size: 10px;
+}
+
+
+.board-container {
+  text-align: center;
+  display: inline-block;
+  /* width: 20%; */
+  height: 40%;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  font-size: 1.5em;
+}
+
+.restart{
+  text-align: center;
+}
+
+.img-mode {
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  font-size: 1.5em;
+}
+
+.pacman-d {
+  transform: rotate(90deg);
+}
+.pacman-l {
+  transform: rotate(180deg);
+}
+.pacman-u {
+  transform: rotate(270deg);
+}
+
+
+/* .formLine {
+  margin:10px;
+  padding:10px;
+  background-color: cornflowerblue;
+} */
