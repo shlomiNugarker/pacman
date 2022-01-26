@@ -5,26 +5,31 @@ var gPacman;
 var killedGhosts = []
 var idx = -1
 
-var dir ;
+var dir ; //diraction class of img (getNextLocation)
 
 var emptyLocations = [];
-var currPosPacman;
+var currPosPacman = {i: 4, j: 6}
 
-var powerSound = new Audio('sound/power.wav')
+var powerSound = new Audio('sound/power.wav');
+var moveSound = new Audio('sound/move.wav')
 
 function createPacman(board) {
     gPacman = {
         location: {
-            i: 5,
-            j: 7
+            i: 3,
+            j: 3
         },
-        isSuper: false
+        isSuper: false,
+        
     }
     board[gPacman.location.i][gPacman.location.j] = PACMAN_IMG;
 }
 
 function movePacman(ev) {
-    if (!gGame.isOn) return
+    if(ev.code === 'Space' && !gGame.isOn) init()
+    if (!gGame.isOn ) return
+
+    moveSound.play()
     
     // use getNextLocation(), nextCell
     var nextLocation = getNextLocation(ev)
@@ -34,13 +39,11 @@ function movePacman(ev) {
 
     //diraction of pacman
     
-    PACMAN_IMG = `<img class="img-mode pacman-${dir}" src="images/pacman.gif" />`
+    PACMAN_IMG = `<img class="img-mode pacman-${dir}" src="images/pacman.gif" />` // curr heading
 
-    // console.log('nextCell', nextCell)
-    // return if cannot move
     if (nextCell === WALL_IMG) return
     // hitting a ghost?  call gameOver
-    if (nextCell === GHOST) {
+    if (nextCell === GHOST_IMG) {
         if(gPacman.isSuper) {
             for(var i = 0; i < gGhosts.length; i++){
                 if(gGhosts[i].location.i === nextLocation.i &&
@@ -48,17 +51,17 @@ function movePacman(ev) {
                         killedGhosts.push(...gGhosts.splice(i, 1))
                     }
             }
-            if(killedGhosts.currCellContent === FOOD) updateScore(1)
+            if(killedGhosts.currCellContent === FOOD_IMG) updateScore(1)
         }
         else {
           gameOver();
-        document.querySelector('.msg').innerText = 'Game Over'
+        document.querySelector('.msg').innerText = 'Game Over \n Click "space" to play again'
         return  
         }
     }
-    if(nextCell === CHERRY){
+    if(nextCell === CHERRY_IMG){
+        powerSound.play()
         gGame.cherry += 10
-        document.querySelector('.score2').innerText = gGame.cherry
     } 
 
     if(killedGhosts[0] && !gPacman.isSuper) {
@@ -69,23 +72,18 @@ function movePacman(ev) {
         killedGhosts = []
     }
   
-
-  
-
-    if (nextCell === FOOD) {
+    if (nextCell === FOOD_IMG) {
         updateScore(1)
         emptyLocations.push(nextLocation)
-        // console.log(emptyLocations);
-        // console.log(gGame.sumScore);
+
     }
     if(nextCell === POWER_IMG) {
         if(gPacman.isSuper) return
         powerSound.play()
-        updateScore(1)
         gPacman.isSuper = true
         setTimeout(()=> {
             gPacman.isSuper = false;
-        }, 5000)
+        }, 7000)
     }
 
     // moving from corrent position:
@@ -106,12 +104,11 @@ function movePacman(ev) {
 }
 
 function getNextLocation(keyboardEvent) {
-    // console.log('keyboardEvent.code', keyboardEvent.code)
-    // figure out nextLocation
     var nextLocation = {
         i: gPacman.location.i,
         j: gPacman.location.j
     }
+    console.log(currPosPacman);
 
     switch (keyboardEvent.code) {
         case 'ArrowUp':

@@ -1,15 +1,13 @@
 'use strict'
-// const WALL = '🛑'
-const FOOD = '.'
+
+const FOOD_IMG = `<img class="img-mode food" src="images/food.png" />`;
 const EMPTY = ' ';
-// const POEWR = '🍉';
-const CHERRY = '🍒';
+
+const CHERRY_IMG = `<img class="img-mode cherry" src="images/cherry.gif" />`;
 const WALL_IMG = `<img class="img-mode" src="images/wall.png" />`;
 const POWER_IMG = `<img class="img-mode" src="images/apple.png" />`
 
 var intervalCherry;
-
-// var anountOffood = 0;
 
 
 
@@ -18,7 +16,7 @@ var gBoard;
 var gGame = {
     score: 0,
     cherry: 0,
-    sumScore: 0 ,
+    amountOffood: -1,
     isOn: false
 }
 
@@ -27,12 +25,9 @@ function init() {
     document.querySelector('.restart').style.display = 'none';
     gGame.score = 0;
     gGame.cherry = 0;
-    // gGame.sumScore = 0
-    document.querySelector('.score').innerText = 0;
 
-
-    // console.log('Hello')
-    gBoard = buildBoard()
+   
+    gBoard = buildBoard(15,5)
     createPacman(gBoard);
     createGhosts(gBoard);
     // console.table(gBoard)
@@ -42,19 +37,24 @@ function init() {
     addCherry(gBoard, emptyLocations)
 }
 
-function buildBoard() {
-    var SIZE = 10;
+function buildBoard(size, addWidth = 4) {
     var board = [];
-    for (var i = 0; i < SIZE; i++) {
+    // var addWidth = 5
+    var middlePos = Math.floor(size/2)
+    for (var i = 0; i < size; i++) {
         board.push([]);
-        for (var j = 0; j < SIZE; j++) {
-            board[i][j] = FOOD;
-            if((i ===1 && j === 1) || (i === 1 && j === SIZE-2)
-            || (j === 1 && i === SIZE-2) || (i === SIZE-2 && j === SIZE-2)) board[i][j] = POWER_IMG
-            if (i === 0 || i === SIZE - 1 ||
-                j === 0 || j === SIZE - 1 ||
-                (j === 3 && i > 4 && i < SIZE - 2)) {
+        for (var j = 0; (j < size + addWidth); j++) {
+            board[i][j] = FOOD_IMG;
+            gGame.amountOffood++;
+            if((i ===1 && j === 1) || (i === 1 && (j === size-2+addWidth))
+            || (j === 1 && i === size-2) || (i === size-2 && (j === size-2+addWidth))) {
+               board[i][j] = POWER_IMG 
+               gGame.amountOffood--;
+            } 
+            if (j === 0 || j === (size - 1 + addWidth) ||
+                i === 0 || i=== size - 1 || (j === middlePos-1 && i > middlePos+1) || (j === middlePos + 2 && i < 3) ) {
                 board[i][j] = WALL_IMG;
+                gGame.amountOffood--;
                 
             }
         }
@@ -66,15 +66,15 @@ function updateScore(diff) {
     // update model and dom
     gGame.sumScore = gGame.score + gGame.cherry
     gGame.score += diff;
-    document.querySelector('h2 span').innerText = gGame.score;
-    if(gGame.score === 60) {
+    gGame.amountOffood--;
+    document.querySelector('.score3').innerText = gGame.sumScore;
+    if(gGame.amountOffood === 0) {
         gameOver()
-        document.querySelector('.msg').innerText = 'Victory !'
+        document.querySelector('.msg').innerText = 'Victory !\n click "space" to play again.'
     }
 }
 
 function gameOver() {
-    console.log('Game Over');
     gGame.isOn = false;
     clearInterval(gIntervalGhosts)
     clearInterval(intervalCherry)
@@ -84,6 +84,8 @@ function gameOver() {
     renderCell(gPacman.location, EMPTY)
 
     document.querySelector('.restart').style.display = 'block';
+    document.querySelector('.msg').style.display = 'block'
+    document.querySelector('.msg').innerText = 'Game Over !\n click "space" to play again.'
 }
 
 
@@ -95,12 +97,10 @@ function addCherry(gBoard, emptyLocations) {
        
         var randCell = emptyLocations[randEmpty]
         // emptyLocations.splice(randEmpty, 1)
-        if((randCell === PACMAN_IMG)  || (randCell === currPosPacman) || randCell === gPacman.location) return;
-        gBoard[randCell.i][randCell.j] = CHERRY
+        if((randCell === PACMAN_IMG)  || (randCell.i === currPosPacman.i && randCell.j === currPosPacman.j) || randCell === gPacman.location) return;
+        gBoard[randCell.i][randCell.j] = CHERRY_IMG
 
-        renderCell(randCell, CHERRY)
-        console.log(randCell);
-     
+        renderCell(randCell, CHERRY_IMG)
    
     }, 15000);
     

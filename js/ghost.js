@@ -1,5 +1,5 @@
 'use strict'
-const GHOST = '&#9781;';
+const GHOST_IMG = '<img class="img-mode" src="images/g1.png" />';
 
 var gNum = 1
 var gGhosts;
@@ -12,15 +12,15 @@ function createGhost(board, idx) {
    
     var ghost = {
         location: {
-            i: 3,
-            j: 3
+            i: 8,
+            j: 8
         },
-        currCellContent: FOOD,
+        currCellContent: FOOD_IMG,
         color: getRandomColor(),
         idImg: idx + 1
     }
     gGhosts.push(ghost);
-    board[ghost.location.i][ghost.location.j] = GHOST;
+    board[ghost.location.i][ghost.location.j] = GHOST_IMG;
 
 }
 
@@ -53,14 +53,12 @@ function moveGhosts() {
 //     return nextLocation;
 // }
 
-function moveGhost(ghost, policyFunc) {
+function moveGhost(ghost) {
     // console.log('ghost.location', ghost.location)
     // figure out moveDiff, nextLocation, nextCell
 
-    // var nextLocation = policyFunc(ghost) 
-
-
-    var moveDiff = getMoveDiff()
+    // var moveDiff = getMoveDiff()
+    var moveDiff = !gPacman.isSuper?  getAttackPac(currPosPacman, ghost.location): getMoveDiff(currPosPacman)
     var nextLocation = {
         i: ghost.location.i + moveDiff.i,
         j: ghost.location.j + moveDiff.j,
@@ -72,13 +70,11 @@ function moveGhost(ghost, policyFunc) {
     // console.log('nextCell', nextCell)
     // return if cannot move
     if (nextCell === WALL_IMG) return
-    if (nextCell === GHOST) return
-    if (nextCell === CHERRY) return
+    if (nextCell === GHOST_IMG) return
+    if (nextCell === CHERRY_IMG) return
     // hitting a pacman?  call gameOver
     if (nextCell === PACMAN_IMG) {
-        if(gPacman.isSuper) {
-            return
-        }
+        if(gPacman.isSuper)  return
         else {
             gameOver();
             return
@@ -99,7 +95,7 @@ function moveGhost(ghost, policyFunc) {
         j: nextLocation.j
     }
     ghost.currCellContent = nextCell
-    gBoard[ghost.location.i][ghost.location.j] = GHOST
+    gBoard[ghost.location.i][ghost.location.j] = GHOST_IMG
     // update the DOM
 
     renderCell(ghost.location, getGhostHTML(ghost, gPacman.isSuper))
@@ -110,13 +106,15 @@ function getGhostHTML(ghost, isSuper) {
         return `<span style="color: red;"><img class="img-mode" src="images/ghost.png" /></span>`
     }
     else {
-        return `<span style="color:${ghost.color} ;"><img class="img-mode" src="images/g${ghost.idImg}.png" /></span>`
+        return `<span style="color:;"><img class="img-mode" src="images/g${ghost.idImg}.png" /></span>`
     }
     
 }
 
-function getMoveDiff() {
+function getMoveDiff(currPosPac) {
     var randNum = getRandomIntInclusive(1, 100);
+    currPosPac = gPacman.location
+    console.log(currPosPac);
     if (randNum <= 25) {
         return { i: 0, j: 1 }
     } else if (randNum <= 50) {
@@ -126,5 +124,19 @@ function getMoveDiff() {
     } else {
         return { i: 1, j: 0 }
     }
+}
+
+function getAttackPac(pacPos, ghostPos) {
+    console.log(pacPos, ghostPos);
+ 
+    // if(!gPacman.isSuper) {
+        if(pacPos.j > ghostPos.j) return {i: 0, j: 1}
+        if(pacPos.j === ghostPos.j && pacPos.i > ghostPos.i) return {i:1, j: 0}
+        if(ghostPos.j > pacPos.j) return {i: 0, j: -1}
+        if(ghostPos.i > pacPos.i) return {i: -1, j: 0}
+        
+    // }
+    // else
+
 }
 
